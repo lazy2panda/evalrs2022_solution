@@ -1,0 +1,10 @@
+python-dotenv==0.20.0
+boto3==1.24.34
+git+https://github.com/jacopotagliabue/reclist@develop
+numpy==1.23.3
+pandas==1.4.2
+gensim==4.0.1
+joblib==1.1.0
+nltk==3.7
+tqdm==4.62.3
+pyarrow==9.0.0

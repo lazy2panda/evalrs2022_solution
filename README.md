@@ -1,5 +1,5 @@
 
-## Project description (as if this was a real submission!)
+## Project description
 
 ### Introduction
 

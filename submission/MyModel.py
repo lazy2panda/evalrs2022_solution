@@ -1,11 +1,3 @@
-"""
-    This is an example model to run on a DL AMI - for the original implementation,
-    comments and insights, please check the appropriate sections in the evalRS repository:
-    https://github.com/RecList/evalRS-CIKM-2022/tree/main/notebooks/merlin_tutorial.
-
-    This model is built using Merlin. For more information about the open source framework,
-    please check the project page: https://github.com/NVIDIA-Merlin/Merlin.
-"""
 import os
 import pandas as pd
 from gensim.models import KeyedVectors
@@ -51,16 +43,12 @@ class MyModel(RecModel):
         random.seed(self._random_state)
 
     def train(self, train_df: pd.DataFrame, **kwargs):
-        
-        # let's put tracks in order so we can build those sentences
+
         df = train_df.sort_values('timestamp')
         self.hot_item=list(df.track_id.value_counts().index[:100])
-        
-        # we group by user and create sequences of tracks. 
-        # each row in "track_id" will be a sequence of tracks
+
         p = df.groupby('user_id', sort=False)['track_id'].agg(list)
         
-        # we now build "sentences" : sequences of tracks
         seq_data = p.values.tolist()
 
         sentences = [nltk.ngrams(seq, self.ngram) for seq in seq_data]
@@ -103,10 +91,7 @@ class MyModel(RecModel):
 
         self.mappings = user_tracks.T.to_dict()
         self.all_track_id=list(train_df.track_id.unique())
-        
-        #self.cold_artist_top5k=list(train_df.track_id.value_counts().index[-5000:])
-        #self.cold_track_top1w=list(train_df[train_df.artist_id.isin(self.cold_artist_top5k)].track_id.value_counts().index[-5000:])
-       # self.cold_track_top1w=list(train_df.track_id.value_counts().index[-self.cold_num:])
+
         self.cold_track_top1w=list(train_df.groupby('track_id')[['user_track_count']].sum().reset_index().sort_values('user_track_count')[:self.cold_num].track_id.values)
     def cosine_sim(self,u: np.array, v: np.array) -> np.array:
         return np.sum(u * v, axis=-1) / (np.linalg.norm(u, axis=-1) * np.linalg.norm(v, axis=-1))
@@ -149,10 +134,10 @@ class MyModel(RecModel):
         user_ids = user_ids.copy()
         predictions = []
         
-        # probably not the fastest way to do this
+
         for user in (user_ids["user_id"]):
           
-          	# for each user we get their sample tracks
+
             user_tracks = self.mappings[user]["track_id_sampled"][:self.user_track_sample]
             tmp_rec=[]
             user_predictions=[]
@@ -174,7 +159,7 @@ class MyModel(RecModel):
                     if len(user_predictions)==100:
                         break
             
-            # append to the return list
+
             predictions.append(user_predictions)
         all_sorted_predictions=[]    
         if self.diversity_flag: 
